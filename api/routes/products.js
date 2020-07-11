@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+// model
 const Product = require('../models/product');
 
 router.get('/', (req, res, next) => {
@@ -55,7 +56,7 @@ router.get('/:productId', (req, res, next) => {
         return res.status(200).json(response);
       }
       return res.status(404).json({
-        message: 'No entry for the provided ID',
+        message: 'No data for the provided ID',
       });
     })
     .catch((err) => {
