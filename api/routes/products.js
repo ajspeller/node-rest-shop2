@@ -35,8 +35,15 @@ router.delete('/:productId', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  res.status(200).json({
+  const { name, price } = req.body;
+  const product = {
+    name,
+    price,
+  };
+
+  res.status(201).json({
     message: 'handling POST request to /products',
+    createdProduct: product,
   });
 });
 
