@@ -25,6 +25,8 @@ mongoose
 // server logging
 app.use(morgan('dev'));
 
+app.use('/uploads', express.static('uploads'));
+
 // body parsing
 app.use(
   bodyParser.urlencoded({
