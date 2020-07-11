@@ -1,10 +1,26 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const productRoutes = require('./api/routes/products');
 const orderRoutes = require('./api/routes/orders');
+
+// database connection
+mongoose
+  .connect(process.env.MONGO_DB, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+  })
+  .then(() => {
+    console.log('Database connection successful!');
+  })
+  .catch((err) => {
+    console.log('Database connection failure: ', err);
+  });
 
 // server logging
 app.use(morgan('dev'));
