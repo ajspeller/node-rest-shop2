@@ -2,17 +2,19 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+// middleware
+const checkAuth = require('../middleware/check-auth');
+
 // models
 const Order = require('../models/order');
 const Product = require('../models/product');
 
-router.get('/', (req, res, next) => {
+router.get('/', checkAuth, (req, res, next) => {
   Order.find()
     .select('-__v')
     .populate('product', 'name')
     .exec()
     .then((docs) => {
-      console.log('documents: ', docs);
       return res.status(200).json({
         count: docs.length,
         orders: docs.map((doc) => {
@@ -29,21 +31,19 @@ router.get('/', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       return res.status(500).json({
         error: err,
       });
     });
 });
 
-router.get('/:orderId', (req, res, next) => {
+router.get('/:orderId', checkAuth, (req, res, next) => {
   const { orderId: id } = req.params;
   Order.findById(id)
     .select('-__v')
     .populate('product', '-__v')
     .exec()
     .then((order) => {
-      console.log('order: ', order);
       if (order) {
         const response = {
           order,
@@ -59,14 +59,13 @@ router.get('/:orderId', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json({
         error: err,
       });
     });
 });
 
-router.patch('/:orderId', (req, res, next) => {
+router.patch('/:orderId', checkAuth, (req, res, next) => {
   const { orderId: id } = req.params;
 
   res.status(200).json({
@@ -75,14 +74,13 @@ router.patch('/:orderId', (req, res, next) => {
   });
 });
 
-router.delete('/:orderId', (req, res, next) => {
+router.delete('/:orderId', checkAuth, (req, res, next) => {
   const { orderId: id } = req.params;
   Order.deleteOne({
     _id: id,
   })
     .exec()
     .then((doc) => {
-      console.log('document: ', doc);
       res.status(200).json({
         message: 'Order deleted',
         request: {
@@ -96,14 +94,13 @@ router.delete('/:orderId', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       return res.status(500).json({
         error: err,
       });
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', checkAuth, (req, res, next) => {
   const { productId, quantity } = req.body;
 
   Product.findById(productId)
@@ -120,11 +117,9 @@ router.post('/', (req, res, next) => {
         product: productId,
       });
 
-      console.log('productFound: ', productFound);
       return order.save();
     })
     .then((doc) => {
-      console.log('document: ', doc);
       res.status(201).json({
         message: 'Order created successfully',
         createOrder: {
@@ -139,7 +134,6 @@ router.post('/', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json({
         error: err,
       });

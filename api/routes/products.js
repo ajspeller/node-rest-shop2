@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
+// middleware
+const checkAuth = require('../middleware/check-auth');
+
 // setup image upload
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -62,7 +65,6 @@ router.get('/', (req, res, next) => {
       return res.status(200).json(response);
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json({
         error: err,
       });
@@ -92,14 +94,13 @@ router.get('/:productId', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json({
         error: err,
       });
     });
 });
 
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth, (req, res, next) => {
   const { productId: id } = req.params;
   const updateOperations = {};
   for (const ops of req.body) {
@@ -115,7 +116,6 @@ router.patch('/:productId', (req, res, next) => {
   )
     .exec()
     .then((doc) => {
-      console.log('document: ', doc);
       res.status(200).json({
         message: 'Product updated',
         request: {
@@ -125,19 +125,17 @@ router.patch('/:productId', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json(err);
     });
 });
 
-router.delete('/:productId', (req, res, next) => {
+router.delete('/:productId', checkAuth, (req, res, next) => {
   const { productId: id } = req.params;
   Product.deleteOne({
     _id: id,
   })
     .exec()
     .then((doc) => {
-      console.log('document: ', doc);
       res.status(200).json({
         message: 'Product deleted',
         request: {
@@ -151,16 +149,13 @@ router.delete('/:productId', (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error:', err);
       res.status(500).json({
         error: err,
       });
     });
 });
 
-router.post('/', upload.single('productImage'), (req, res, next) => {
-  console.log('req.file: ', req.file);
-
+router.post('/', checkAuth, upload.single('productImage'), (req, res, next) => {
   const { name, price } = req.body;
 
   const product = new Product({
@@ -173,7 +168,6 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
   product
     .save()
     .then((doc) => {
-      console.log('document: ', doc);
       res.status(201).json({
         message: 'Created product successfully',
         createdProduct: {
@@ -188,7 +182,6 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log('error: ', err);
       res.status(500).json({
         error: err,
       });
