@@ -15,6 +15,7 @@ mongoose
   .connect(process.env.MONGO_DB, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
+    useCreateIndex: true,
   })
   .then(() => {
     console.log('Database connection successful!');
